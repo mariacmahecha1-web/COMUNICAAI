@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComunicaAI - Genius Soft (Maria Camila Mahecha)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        },
+                        corporate: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-corporate-50 text-corporate-900 h-full flex flex-col overflow-hidden">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm z-20 flex-shrink-0">
+        <div class="flex items-center space-x-3">
+            <div class="bg-brand-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                <i class="fa-solid fa-brain text-xl"></i>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <h1 class="font-bold text-lg text-corporate-900 tracking-tight">ComunicaAI</h1>
+                    <span class="bg-brand-100 text-brand-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">Genius Soft</span>
+                </div>
+                <p class="text-xs text-slate-500">Agente IA de Comunicación Organizacional y Marketing Estratégico</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <!-- User Profile Badge -->
+            <div class="hidden md:flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+                <div class="w-7 h-7 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs">
+                    MC
+                </div>
+                <div class="text-left">
+                    <p class="text-xs font-semibold text-slate-800">Maria Camila Mahecha</p>
+                    <p class="text-[10px] text-slate-500">Líder de Comunicaciones</p>
+                </div>
+            </div>
+
+            <!-- API Key Config Button -->
+            <button onclick="openApiKeyModal()" class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium px-3 py-2 rounded-lg transition shadow-sm">
+                <i class="fa-solid fa-key text-brand-400"></i>
+                <span id="api-key-status-text">Configurar API Key</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Layout Container -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between z-10 flex-shrink-0 hidden lg:flex">
+            <div class="p-4 space-y-1">
+                <p class="px-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Módulos del Sistema</p>
+                <button onclick="switchTab('chat')" id="tab-btn-chat" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition bg-brand-50 text-brand-700">
+                    <i class="fa-solid fa-comments w-5"></i>
+                    <span>Consultor IA & Chat</span>
+                </button>
+                <button onclick="switchTab('campaigns')" id="tab-btn-campaigns" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-bullhorn w-5"></i>
+                    <span>Estrategias & Cronograma</span>
+                </button>
+                <button onclick="switchTab('metrics')" id="tab-btn-metrics" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-chart-line w-5"></i>
+                    <span>Métricas & Informes (KPIs)</span>
+                </button>
+                <button onclick="switchTab('context')" id="tab-btn-context" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
+                    <i class="fa-solid fa-database w-5"></i>
+                    <span>Contexto & Gemelo Digital</span>
+                </button>
+            </div>
+
+            <!-- System Info Footer in Sidebar -->
+            <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs text-slate-500 space-y-2">
+                <div class="flex justify-between">
+                    <span>Colaboradores:</span>
+                    <span class="font-semibold text-slate-700">Activo (Genius Soft)</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Alineación SGI:</span>
+                    <span class="font-semibold text-brand-600">Integrada</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Modelo IA:</span>
+                    <span class="font-semibold text-slate-700">Gemini 3 Flash</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Bottom Nav / Header tab switch -->
+        <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 flex justify-around p-2">
+            <button onclick="switchTab('chat')" id="mob-btn-chat" class="flex flex-col items-center text-brand-600 p-2">
+                <i class="fa-solid fa-comments text-lg"></i>
+                <span class="text-[10px]">Chat</span>
+            </button>
+            <button onclick="switchTab('campaigns')" id="mob-btn-campaigns" class="flex flex-col items-center text-slate-500 p-2">
+                <i class="fa-solid fa-bullhorn text-lg"></i>
+                <span class="text-[10px]">Campañas</span>
+            </button>
+            <button onclick="switchTab('metrics')" id="mob-btn-metrics" class="flex flex-col items-center text-slate-500 p-2">
+                <i class="fa-solid fa-chart-line text-lg"></i>
+                <span class="text-[10px]">Métricas</span>
+            </button>
+            <button onclick="switchTab('context')" id="mob-btn-context" class="flex flex-col items-center text-slate-500 p-2">
+                <i class="fa-solid fa-database text-lg"></i>
+                <span class="text-[10px]">Gemelo</span>
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 pb-20 lg:pb-8">
+
+            <!-- TAB 1: CHAT ASSISTANT -->
+            <div id="tab-content-chat" class="tab-content h-full flex flex-col max-w-5xl mx-auto">
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-col h-[calc(100vh-140px)] lg:h-[calc(100vh-120px)]">
+                    <!-- Chat Header -->
+                    <div class="p-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 rounded-t-2xl">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-semibold text-slate-800 text-sm">ComunicaAI - Consultor Estratégico</h2>
+                                <p class="text-xs text-slate-500">Tono: Profesional, Cercano y Analítico | Enfoque SGI & Marketing</p>
+                            </div>
+                        </div>
+                        <button onclick="clearChat()" class="text-xs text-slate-500 hover:text-red-600 transition px-2.5 py-1 rounded border border-slate-200 bg-white">
+                            <i class="fa-solid fa-trash-can mr-1"></i> Limpiar Chat
+                        </button>
+                    </div>
+
+                    <!-- Chat Messages Area -->
+                    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+                        <!-- Initial Greeting Message -->
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">IA</div>
+                            <div class="bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-2xl text-sm text-slate-700 space-y-2">
+                                <p>¡Hola Maria Camila! Soy <strong>ComunicaAI</strong>, tu agente especializado en marketing estratégico y comunicación organizacional en <strong>Genius Soft</strong>.</p>
+                                <p>Estoy configurado para ayudarte a diseñar estrategias alineadas con fechas cruciales, dolores de la empresa y sensibilizaciones del Sistema Integrado de Gestión (SGI). ¿En qué campaña o análisis de métricas trabajaremos hoy?</p>
+                                <div class="flex flex-wrap gap-2 pt-2">
+                                    <button onclick="quickPrompt('Ayúdame a planear una campaña de comunicación interna para el SGI')" class="text-xs bg-brand-50 text-brand-700 hover:bg-brand-100 px-3 py-1.5 rounded-lg border border-brand-200 transition">
+                                        📅 Planear campaña SGI
+                                    </button>
+                                    <button onclick="quickPrompt('¿Cómo analizamos las métricas de la última campaña y sus 3 insights clave?')" class="text-xs bg-brand-50 text-brand-700 hover:bg-brand-100 px-3 py-1.5 rounded-lg border border-brand-200 transition">
+                                        📊 Analizar métricas e insights
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Area -->
+                    <div class="p-4 bg-white border-t border-slate-200 rounded-b-2xl">
+                        <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex items-center space-x-2">
+                            <input type="text" id="chat-input" placeholder="Escribe tu consulta estratégica aquí..." class="flex-1 border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                            <button type="submit" id="chat-submit-btn" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-xl font-medium text-sm transition flex items-center justify-center shadow-md">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: CAMPAIGN STRATEGY & REAL-TIME TIMELINE -->
+            <div id="tab-content-campaigns" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-100 gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Generador de Estrategias y Cronograma en Tiempo Real</h2>
+                            <p class="text-xs text-slate-500 mt-1">Crea campañas corporativas alineadas con el SGI, fechas cruciales y objetivos de Genius Soft.</p>
+                        </div>
+                        <button onclick="generateAIStrategy()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center space-x-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Generar con IA (Gemini)</span>
+                        </button>
+                    </div>
+
+                    <!-- Campaign Generator Form -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nombre de la Campaña</label>
+                            <input type="text" id="camp-name" value="Semana de Ciberseguridad y Bienestar SGI" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Fecha Crucial / Plazo</label>
+                            <input type="text" id="camp-date" value="Noviembre - Auditoría SGI & Aniversario" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Dolor / Oportunidad a Resolver</label>
+                            <input type="text" id="camp-pain" value="Baja adopción de protocolos de seguridad en colaboradores remotos" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Objetivo Clave (KPI principal)</label>
+                            <input type="text" id="camp-goal" value="Alcanzar 95% de participación y cumplimiento en sensibilización" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+
+                    <!-- Output Strategy Display -->
+                    <div id="strategy-result-container" class="mt-8 border border-slate-200 rounded-xl p-6 bg-slate-50 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-file-lines text-brand-600 mr-2"></i>Estructura y Cronograma Activo</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="exportToWord()" class="text-xs bg-white border border-slate-300 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-slate-700 font-medium transition">
+                                    <i class="fa-regular fa-file-word mr-1 text-blue-600"></i> Word (.doc)
+                                </button>
+                                <button onclick="exportToPPT()" class="text-xs bg-white border border-slate-300 hover:bg-slate-100 px-3 py-1.5 rounded-lg text-slate-700 font-medium transition">
+                                    <i class="fa-regular fa-file-powerpoint mr-1 text-orange-600"></i> PPT (.ppt)
+                                </button>
+                            </div>
+                        </div>
+                        <div id="strategy-content-output" class="text-sm text-slate-700 space-y-4 bg-white p-4 rounded-xl border border-slate-200">
+                            <p class="text-slate-400 italic">Haz clic en "Generar con IA (Gemini)" para crear la estrategia detallada y el cronograma en tiempo real basado en el perfil de Maria Camila.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: METRIC ANALYSIS & EXECUTIVE REPORTS -->
+            <div id="tab-content-metrics" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center pb-6 border-b border-slate-100 gap-4">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-900">Cuadro de Análisis de Métricas (Excel style) & Informes</h2>
+                            <p class="text-xs text-slate-500 mt-1">Análisis de efectividad de comunicación, KPIs de campañas y 3 insights clave de rendimiento.</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="generateMetricsAnalysis()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center space-x-2">
+                                <i class="fa-solid fa-chart-pie"></i>
+                               <span>Analizar KPIs & Generar 3 Insights</span>
+                            </button>
+                            <button onclick="exportToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-md transition flex items-center space-x-2">
+                                <i class="fa-solid fa-file-excel"></i>
+                                <span>Exportar Excel (.csv)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Excel Simulation Table -->
+                    <div class="mt-6 overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-slate-100 text-slate-800 font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Campaña / Actividad</th>
+                                    <th class="p-3">Canal Principal</th>
+                                    <th class="p-3">Alcance (%)</th>
+                                    <th class="p-3">Engagement / Feedback</th>
+                                    <th class="p-3">Efectividad SGI</th>
+                                    <th class="p-3">Estado Indicador</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 bg-white">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold">Sensibilización Política SGI Q3</td>
+                                    <td class="p-3">Intranet / Email</td>
+                                    <td class="p-3">92%</td>
+                                    <td class="p-3">84% Participación</td>
+                                    <td class="p-3 text-emerald-600 font-semibold">Óptimo (94%)</td>
+                                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Cumplido</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold">Campaña Canales Remotos & Seguridad</td>
+                                    <td class="p-3">Teams / Talleres</td>
+                                    <td class="p-3">68%</td>
+                                    <td class="p-3">52% Feedback</td>
+                                    <td class="p-3 text-amber-600 font-semibold">Moderado (71%)</td>
+                                    <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">Refuerzo Requerido</span></td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-3 font-semibold">Lanzamiento Nuevos Protocolos Internos</td>
+                                    <td class="p-3">Newsletter & Townhall</td>
+                                    <td class="p-3">95%</td>
+                                    <td class="p-3">89% Interacción</td>
+                                    <td class="p-3 text-emerald-600 font-semibold">Excelente (98%)</td>
+                                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">Cumplido</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- AI Insights & Executive Report Output -->
+                    <div id="metrics-ai-report" class="mt-6 border border-slate-200 rounded-xl p-6 bg-slate-50 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center">
+                            <i class="fa-solid fa-lightbulb text-amber-500 mr-2 text-base"></i>
+                            Informe Ejecutivo e Insights Clave (Generado por IA)
+                        </h3>
+                        <div id="metrics-ai-content" class="text-sm text-slate-700 bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                            <p class="text-slate-400 italic">Haz clic en "Analizar KPIs & Generar 3 Insights" para obtener el informe ejecutivo con los 3 insights clave y propuestas de campañas de refuerzo para indicadores negativos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: DIGITAL TWIN CONTEXT & SYSTEM PROMPT -->
+            <div id="tab-content-context" class="tab-content hidden max-w-5xl mx-auto space-y-6">
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">Gemelo Digital y Configuración del Agente (ComunicaAI)</h2>
+                        <p class="text-xs text-slate-500 mt-1">Parámetros, contexto de la empresa y directrices de ingeniería de instrucciones para Maria Camila.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Perfil del Gemelo Digital</h3>
+                            <ul class="text-xs text-slate-700 space-y-1.5">
+                                <li><strong>Nombre:</strong> Maria Camila Mahecha</li>
+                                <li><strong>Rol:</strong> Líder de Comunicación Organizacional</li>
+                                <li><strong>Empresa:</strong> Genius Soft</li>
+                                <li><strong>Enfoque:</strong> Estrategias alineadas con SGI y fechas cruciales</li>
+                                <li><strong>Tono de IA:</strong> Profesional, cercano y altamente analítico</li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Parámetros de Operación</h3>
+                            <ul class="text-xs text-slate-700 space-y-1.5">
+                                <li><strong>Caso de Uso:</strong> Estrategias, seguimiento y métricas de campañas</li>
+                                <li><strong>Entregables:</strong> Cuadros Excel, Informes ejecutivos, Cronogramas</li>
+                                <li><strong>Restricción:</strong> Fuentes y datos oficiales de la compañía</li>
+                                <li><strong>Conectividad:</strong> API Gratuita Gemini 3 Flash</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-700">Instrucción del Sistema (System Prompt Activo)</label>
+                        <textarea readonly class="w-full h-36 bg-slate-950 text-emerald-400 font-mono text-xs p-4 rounded-xl border border-slate-800 focus:outline-none">Eres ComunicaAI, un agente de IA experto en gerencia de marketing estratégico, comunicación organizacional y alineación con el Sistema Integrado de Gestión (SGI). Tu usuaria es Maria Camila Mahecha, líder de comunicación organizacional en Genius Soft. Tu tono es profesional, cercano y altamente analítico. Ayudas a crear estrategias de comunicación para fechas cruciales, gestionas cronogramas en tiempo real, analizas métricas de campañas, entregas cuadros de análisis tipo Excel, informes ejecutivos e identificas exactamente 3 insights clave de rendimiento con propuestas de campañas de refuerzo para indicadores negativos. Nunca inventes información ni uses sitios no oficiales; todo debe estar basado en datos sólidos, objetivos y en el SGI.</textarea>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- API Key Modal -->
+    <div id="apikey-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-slate-900 text-base">Configurar API Key de Gemini</h3>
+                <button onclick="closeApiKeyModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <p class="text-xs text-slate-500">Ingresa tu clave de API gratuita de Google Gemini para habilitar la generación inteligente de estrategias, cronogramas y análisis de métricas.</p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Key</label>
+                <input type="password" id="modal-api-key-input" placeholder="AIzaSy..." class="w-full border border-slate-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-brand-500">
+            </div>
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 text-xs font-semibold bg-brand-600 text-white rounded-lg hover:bg-brand-700 shadow-md">Guardar Key</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // Global State
+        let apiKey = localStorage.getItem('gemini_api_key') || '';
+        let chatHistory = [];
+
+        // Initialize on load
+        window.onload = function() {
+            if (apiKey) {
+                document.getElementById('api-key-status-text').innerText = 'API Key Configurada';
+            }
+        };
+
+        // Toast notification system (No alert() used)
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `flex items-center space-x-2 px-4 py-3 rounded-xl text-xs font-medium text-white shadow-lg transition transform translate-y-2 opacity-0 ${type === 'success' ? 'bg-emerald-600' : 'bg-slate-900'}`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-info-circle'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 50);
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Modal Handlers
+        function openApiKeyModal() {
+            document.getElementById('modal-api-key-input').value = apiKey;
+            document.getElementById('apikey-modal').classList.remove('hidden');
+        }
+        function closeApiKeyModal() {
+            document.getElementById('apikey-modal').classList.add('hidden');
+        }
+        function saveApiKey() {
+            const val = document.getElementById('modal-api-key-input').value.trim();
+            apiKey = val;
+            localStorage.setItem('gemini_api_key', val);
+            if (val) {
+                document.getElementById('api-key-status-text').innerText = 'API Key Configurada';
+                showToast('API Key guardada exitosamente.');
+            } else {
+                document.getElementById('api-key-status-text').innerText = 'Configurar API Key';
+                showToast('API Key removida.', 'info');
+            }
+            closeApiKeyModal();
+        }
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            const tabs = ['chat', 'campaigns', 'metrics', 'context'];
+            tabs.forEach(t => {
+                document.getElementById(`tab-content-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    btn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-100 transition";
+                }
+                const mobBtn = document.getElementById(`mob-btn-${t}`);
+                if (mobBtn) {
+                    mobBtn.className = "flex flex-col items-center text-slate-500 p-2";
+                }
+            });
+
+            document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-brand-50 text-brand-700";
+            }
+            const activeMobBtn = document.getElementById(`mob-btn-${tabId}`);
+            if (activeMobBtn) {
+                activeMobBtn.className = "flex flex-col items-center text-brand-600 p-2 font-bold";
+            }
+        }
+
+        // Gemini API Call Function with Exponential Backoff
+        async function callGeminiAPI(promptText, systemPrompt, retries = 3, delay = 1000) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const data = await response.json();
+                    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (text) return text;
+                    throw new Error('Respuesta vacía de la IA');
+                } catch (err) {
+                    if (i === retries - 1) throw err;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        // Chat Quick Prompt Helper
+        function quickPrompt(text) {
+            document.getElementById('chat-input').value = text;
+        }
+
+        // Clear Chat
+        function clearChat() {
+            const container = document.getElementById('chat-messages');
+            container.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">IA</div>
+                    <div class="bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-2xl text-sm text-slate-700">
+                        <p>Chat reiniciado. ¿En qué más te puedo colaborar, Maria Camila?</p>
+                    </div>
+                </div>`;
+            showToast('Chat limpiado.', 'info');
+        }
+
+        // Handle Chat Submission
+        async function handleChatSubmit(e) {
+            e.preventDefault();
+            const inputEl = document.getElementById('chat-input');
+            const query = inputEl.value.trim();
+            if (!query) return;
+
+            if (!apiKey) {
+                openApiKeyModal();
+                showToast('Por favor configura tu API Key de Gemini primero.', 'info');
+                return;
+            }
+
+            // Append User Message
+            const container = document.getElementById('chat-messages');
+            container.innerHTML += `
+                <div class="flex items-start justify-end space-x-3">
+                    <div class="bg-brand-600 text-white p-4 rounded-2xl rounded-tr-none shadow-sm max-w-2xl text-sm">
+                        <p>${escapeHTML(query)}</p>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">MC</div>
+                </div>`;
+            inputEl.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            // Loading state
+            const loadingId = 'loading-' + Date.now();
+            container.innerHTML += `
+                <div id="${loadingId}" class="flex items-start space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">IA</div>
+                    <div class="bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none shadow-sm text-sm text-slate-500 italic">
+                        ComunicaAI está analizando tu consulta...
+                    </div>
+                </div>`;
+            container.scrollTop = container.scrollHeight;
+
+            const systemPrompt = "Eres ComunicaAI, experto en gerencia de marketing estratégico, comunicación organizacional y SGI para Maria Camila Mahecha en Genius Soft. Tono profesional, cercano y analítico.";
+
+            try {
+                const responseText = await callGeminiAPI(query, systemPrompt);
+                document.getElementById(loadingId).remove();
+                container.innerHTML += `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center flex-shrink-0 text-xs font-bold">IA</div>
+                        <div class="bg-white border border-slate-200 p-4 rounded-2xl rounded-tl-none shadow-sm max-w-2xl text-sm text-slate-700 space-y-2">
+                            ${formatMarkdown(responseText)}
+                        </div>
+                    </div>`;
+                container.scrollTop = container.scrollHeight;
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                showToast('Error al conectar con Gemini API. Verifica tu API Key.', 'error');
+            }
+        }
+
+        // Generate AI Strategy & Timeline
+        async function generateAIStrategy() {
+            if (!apiKey) {
+                openApiKeyModal();
+                showToast('Configura tu API Key primero.', 'info');
+                return;
+            }
+
+            const name = document.getElementById('camp-name').value;
+            const date = document.getElementById('camp-date').value;
+            const pain = document.getElementById('camp-pain').value;
+            const goal = document.getElementById('camp-goal').value;
+
+            const prompt = `Crea una estrategia de comunicación organizacional detallada y cronograma en tiempo real para la campaña "${name}". Fecha crucial: "${date}". Dolor corporativo: "${pain}". Objetivo KPI: "${goal}". Incluye alineación con el Sistema Integrado de Gestión (SGI) de Genius Soft, canales sugeridos, piezas de comunicación y plan de acción estructurado con tono profesional, cercano y analítico.`;
+            const systemPrompt = "Eres ComunicaAI, experto en estrategias de marketing estratégico y comunicación interna.";
+
+            const outputEl = document.getElementById('strategy-content-output');
+            outputEl.innerHTML = '<div class="text-center py-6 text-slate-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Generando estrategia y cronograma en tiempo real con Gemini...</div>';
+
+            try {
+                const result = await callGeminiAPI(prompt, systemPrompt);
+                outputEl.innerHTML = `<div class="space-y-3 text-slate-700">${formatMarkdown(result)}</div>`;
+                showToast('Estrategia generada con éxito.');
+            } catch (err) {
+                outputEl.innerHTML = '<p class="text-red-600 text-xs">Error al generar la estrategia con la API. Verifica tu clave.</p>';
+                showToast('Error al generar estrategia.', 'error');
+            }
+        }
+
+        // Generate Metric Analysis & 3 Insights
+        async function generateMetricsAnalysis() {
+            if (!apiKey) {
+                openApiKeyModal();
+                showToast('Configura tu API Key primero.', 'info');
+                return;
+            }
+
+            const prompt = `Analiza las métricas de las campañas de comunicación organizacional de Genius Soft (Sensibilización SGI: 94% óptimo; Campaña Canales Remotos: 71% moderado con indicador negativo de participación; Nuevos Protocolos: 98% excelente). Entrega un informe ejecutivo estructurado que contenga exactamente 3 insights clave de rendimiento y una propuesta clara de campaña de refuerzo para corregir el indicador negativo. Tono profesional, cercano y analítico.`;
+            const systemPrompt = "Eres ComunicaAI, experto analista de KPIs de marketing y comunicación organizacional.";
+
+            const outputEl = document.getElementById('metrics-ai-content');
+            outputEl.innerHTML = '<div class="text-center py-4 text-slate-500 italic"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Analizando KPIs e identificando los 3 insights clave...</div>';
+
+            try {
+                const result = await callGeminiAPI(prompt, systemPrompt);
+                outputEl.innerHTML = `<div class="space-y-3 text-slate-700">${formatMarkdown(result)}</div>`;
+                showToast('Análisis e insights generados con éxito.');
+            } catch (err) {
+                outputEl.innerHTML = '<p class="text-red-600 text-xs">Error al conectar con la API.</p>';
+                showToast('Error al analizar métricas.', 'error');
+            }
+        }
+
+        // Export Functions (Word, PPT, Excel simulation)
+        function exportToWord() {
+            const content = document.getElementById('strategy-content-output').innerText;
+            downloadFile('Estrategia_Comunicacion_GeniusSoft.doc', content, 'application/msword');
+            showToast('Documento Word descargado.');
+        }
+
+        function exportToPPT() {
+            const content = document.getElementById('strategy-content-output').innerText;
+            downloadFile('Presentacion_Campana_GeniusSoft.ppt', content, 'application/vnd.ms-powerpoint');
+            showToast('Presentación PPT descargada.');
+        }
+
+        function exportToExcel() {
+            const csvContent = "data:text/csv;charset=utf-8,Campana,Canal,Alcance,Engagement,Efectividad_SGI,Estado\n" +
+                "Sensibilizacion_SGI_Q3,Intranet_Email,92%,84%,94%,Cumplido\n" +
+                "Canales_Remotos_Seguridad,Teams_Talleres,68%,52%,71%,Refuerzo_Requerido\n" +
+                "Nuevos_Protocolos_Internos,Newsletter_Townhall,95%,89%,98%,Cumplido";
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Cuadro_Metricas_Campañas_GeniusSoft.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('Cuadro Excel (.csv) descargado.');
+        }
+
+        function downloadFile(filename, text, mimeType) {
+            const element = document.createElement('a');
+            const file = new Blob([text], {type: mimeType});
+            element.href = URL.createObjectURL(file);
+            element.download = filename;
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // Simple Markdown formatter
+        function formatMarkdown(text) {
+            return text
+                .replace(/### (.*?)\n/g, '<h4 class="font-bold text-slate-900 text-base mt-3 mb-1">$1</h4>')
+                .replace(/## (.*?)\n/g, '<h3 class="font-bold text-slate-900 text-lg mt-4 mb-2">$1</h3>')
+                .replace(/# (.*?)\n/g, '<h2 class="font-bold text-slate-900 text-xl mt-4 mb-2">$1</h2>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-slate-900">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+                .replace(/- (.*?)\n/g, '<li class="ml-4 list-disc">$1</li>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
