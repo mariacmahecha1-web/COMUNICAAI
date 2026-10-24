@@ -443,6 +443,8 @@ Hoy es ${fmtDate(new Date())}.
 Reglas:
 - Responde en español de Colombia, con tono profesional, cercano y analítico.
 - Usa primero la BASE DE CONOCIMIENTO. Si un dato no está ahí ni en las métricas, dilo claramente y sugiere cómo obtenerlo. Nunca inventes cifras, normas, nombres ni resultados.
+- Si no hay métricas registradas o la base de conocimiento está vacía, no hagas estimaciones, tendencias "probables" ni tablas supuestas: di qué datos faltan, pídelos y explica qué análisis harás cuando los tengas.
+- Las campañas en estado "Atípico" o "Sin dato" no se usan en conclusiones: señálalas y di qué dato hay que revisar.
 - Cuando cites requisitos normativos, menciona la norma y aclara que deben verificarse en el documento oficial.
 - Entrega respuestas accionables: qué hacer, en qué canal, cuándo, quién aprueba y cómo se mide.
 - Usa Markdown: títulos cortos, listas y tablas cuando ayuden.`);
@@ -659,12 +661,14 @@ function delEvent(id) { events = events.filter(e => e.id !== id); store.set('ca_
 /* ---------- Métricas ---------- */
 function calcResult(r) {
     if (r.resultadoManual !== '' && r.resultadoManual != null) return Number(r.resultadoManual);
+    if (r.poblacion === '' || r.poblacion == null || r.participaron === '' || r.participaron == null) return null;
     const pob = Number(r.poblacion), par = Number(r.participaron);
     return pob > 0 && !isNaN(par) ? Math.round((par / pob) * 1000) / 10 : null;
 }
 function statusOf(r) {
     const res = calcResult(r), meta = Number(r.meta);
     if (res == null || !r.meta) return { t: 'Sin dato', cls: 'bg-ink-100 text-ink-700' };
+    if (res > 100 || res < 0 || (r.alcanzados !== '' && r.alcanzados != null && Number(r.alcanzados) > Number(r.poblacion))) return { t: 'Atípico', cls: 'bg-purple-100 text-purple-800' };
     if (res >= meta) return { t: 'Cumplido', cls: 'bg-emerald-100 text-emerald-800' };
     if (res >= meta * 0.85) return { t: 'Cerca', cls: 'bg-amber-100 text-amber-800' };
     return { t: 'Refuerzo', cls: 'bg-red-100 text-red-800' };
@@ -696,7 +700,7 @@ function renderMetrics() {
     renderKPIs(); refreshStatus();
 }
 function renderKPIs() {
-    const withRes = metrics.map(calcResult).filter(v => v != null && !isNaN(v));
+    const withRes = metrics.filter(r => statusOf(r).t !== 'Atípico').map(calcResult).filter(v => v != null && !isNaN(v));
     const avg = withRes.length ? (withRes.reduce((a, b) => a + b, 0) / withRes.length).toFixed(1) + '%' : '—';
     const ok = metrics.filter(r => statusOf(r).t === 'Cumplido').length;
     const ref = metrics.filter(r => statusOf(r).t === 'Refuerzo').length;
@@ -739,7 +743,7 @@ function genAnalysis() {
 3. **Exactamente 3 insights clave**, cada uno con el dato que lo sustenta y su implicación.
 4. **Campaña de refuerzo** para cada indicador en estado "Refuerzo" o "Cerca": objetivo, concepto, 3 piezas con canal y una fecha sugerida.
 5. **Recomendaciones de medición**: qué dato falta capturar para el próximo corte.
-Usa solo las cifras registradas; si falta un dato, dilo.`;
+Usa solo las cifras registradas; si falta un dato, dilo. Las campañas en estado "Atípico" o "Sin dato" no se usan en conclusiones: señálalas y di qué dato hay que revisar.`;
     runInto('m-out', 'm-btn', prompt, 'Analizando tus indicadores…');
 }
 
